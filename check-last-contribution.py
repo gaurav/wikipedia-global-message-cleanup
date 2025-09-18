@@ -1,6 +1,7 @@
 import re
 import sys
 import time
+from collections import defaultdict
 from dataclasses import dataclass
 
 import requests
@@ -82,7 +83,8 @@ def get_last_edit(username, site):
               help="The type of input file to read usernames from.")
 @click.argument("input_file", type=click.File("r"), nargs=-1)
 @click.option("--output", "-o", type=click.File("w"), default=sys.stdout)
-def main(input_type, input_file, output):
+@click.option('--additional-site', '-s', multiple=True, help='Additional sites to check, e.g. "wikidata.org"')
+def main(input_type, input_file, output, additional_site):
     usernames = []
     usernames_processed = set()
 
@@ -99,26 +101,48 @@ def main(input_type, input_file, output):
                     for username in line_usernames:
                         if username not in usernames_processed:
                             usernames.append(username)
+                            username_count += 1
                 case _:
                     raise NotImplementedError(f"Input type {input_type} is not implemented")
 
         logging.info(f"Read {line_count} lines containing {username_count} unique usernames from {file.name}.")
 
-    site_list = set(map(lambda username: username.site, usernames))
-    logging.info(f"Found {len(usernames)} unique usernames across {len(site_list)} sites: sites={site_list}.")
+    # Let's break down our username/site mapping into a list of username-to-sites mappings.
+    username_sites = defaultdict(set)
+    site_set = set(map(lambda username: username.site, usernames))
+    for uname in usernames:
+        username_sites[uname.username].add(uname.site)
 
-    # TODO: add support for multiple sites.
+    logging.info(f"Found {len(usernames)} unique usernames across {len(site_set)} sites: sites={sorted(site_set)}.")
 
+    # Add additional sites to every username.
+    for username in username_sites.keys():
+        username_sites[username].update(set(additional_site))
+    site_list = sorted(site_set) + list(additional_site)
+
+    # Write output.
     writer = csv.writer(output, delimiter="\t")
-    writer.writerow(["username", "site", "last_contribution_in_utc"])
+
+    column_headers = ["username"]
+    for site in site_list:
+        column_headers.append(re.sub(r'[^\w\\.]', '_', 'last_edited_utc_on_' + site))
+    writer.writerow(column_headers)
 
     results_count = 0
-    for username in usernames:
-        last_edit = get_last_edit(username.username, username.site)
-        logging.info(f"Last edit for {username.username}@{username.site} found as {last_edit}.")
-        writer.writerow([username.username, username.site, last_edit])
+    for username in username_sites.keys():
+        logging.info(f"Looking up {username} ({results_count}/{len(username_sites)})")
+        row = [username]
+        for site in site_list:
+            if site not in username_sites[username]:
+                row.append('')
+            else:
+                last_edit = get_last_edit(username, site)
+                logging.info(f"Last edit for {username}@{site} found as {last_edit}.")
+                row.append(last_edit)
+                time.sleep(SLEEP_BETWEEN_REQUESTS)
+
+        writer.writerow(row)
         results_count += 1
-        time.sleep(SLEEP_BETWEEN_REQUESTS)
 
     logging.info(f"Done. {results_count} results written to {output.name}.")
 
