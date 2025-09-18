@@ -110,8 +110,8 @@ def main(input_type, input_file, output):
 
     results_count = 0
     for username in usernames:
-        logging.info(f"Fetching last edit for {username.username}@{username.site}...")
         last_edit = get_last_edit(username.username, username.site)
+        logging.info(f"Last edit for {username.username}@{username.site} found as {last_edit}.")
         writer.writerow([username.username, username.site, last_edit])
         results_count += 1
         time.sleep(SLEEP_BETWEEN_REQUESTS)
