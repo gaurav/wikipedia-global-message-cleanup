@@ -9,6 +9,7 @@ import click
 import logging
 
 # Configuration
+USER_AGENT = 'check-last-contribution.py (gaurav@ggvaidya.com)'
 MAX_RETRIES = 5
 SLEEP_BETWEEN_REQUESTS = 1.5  # seconds between successful requests
 BACKOFF_FACTOR = 2  # exponential backoff multiplier
@@ -39,7 +40,10 @@ def parse_line(line):
 
 
 def get_last_edit(username, site):
-    """Get the last edit timestamp for a username from the given site using MediaWiki API with retries."""
+    """Get the last edit timestamp for a username from the given site using MediaWiki API with retries.
+
+    Mostly written by ChatGPT.
+    """
     api_url = f"https://{site}/w/api.php"
     params = {
         "action": "query",
@@ -53,7 +57,7 @@ def get_last_edit(username, site):
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             resp = requests.get(api_url, params=params, timeout=10, headers={
-                'User-Agent': 'check-last-contribution.py (gaurav@ggvaidya.com)'
+                'User-Agent': USER_AGENT,
             })
             resp.raise_for_status()
             data = resp.json()
