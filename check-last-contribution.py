@@ -63,10 +63,10 @@ def get_last_edit(username, site):
             return ""  # no contributions
         except Exception as e:
             if attempt == MAX_RETRIES:
-                print(f"Failed to get data for {username}@{site} after {MAX_RETRIES} attempts: {e}")
+                logging.error(f"Failed to get data for {username}@{site} after {MAX_RETRIES} attempts: {e}")
                 return ""
             sleep_time = BACKOFF_FACTOR ** (attempt - 1)
-            print(f"Request failed for {username}@{site} ({resp}), retrying in {sleep_time} seconds...")
+            logging.info(f"Request failed for {username}@{site} ({resp}), retrying in {sleep_time} seconds...")
             time.sleep(sleep_time)
     return ""
 
