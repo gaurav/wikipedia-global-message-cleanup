@@ -139,10 +139,10 @@ def main(input_type, input_file, output, additional_site):
                 last_edit = get_last_edit(username, site)
                 logging.info(f"Last edit for {username}@{site} found as {last_edit}.")
                 row.append(last_edit)
-                time.sleep(SLEEP_BETWEEN_REQUESTS)
 
         writer.writerow(row)
         results_count += 1
+        time.sleep(SLEEP_BETWEEN_REQUESTS)
 
     logging.info(f"Done. {results_count} results written to {output.name}.")
 
