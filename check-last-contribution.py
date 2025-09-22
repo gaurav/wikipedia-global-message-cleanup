@@ -12,7 +12,7 @@ import logging
 # Configuration
 USER_AGENT = 'check-last-contribution.py (gaurav@ggvaidya.com)'
 MAX_RETRIES = 5
-SLEEP_BETWEEN_REQUESTS = 1.5  # seconds between successful requests
+SLEEP_BETWEEN_LINES = 1.5  # seconds between successful requests
 BACKOFF_FACTOR = 2  # exponential backoff multiplier
 
 # Use Python logging to do logging.
@@ -95,10 +95,10 @@ def main(input_type, input_file, output, additional_site):
         file.seek(0)
 
     # Write output.
-    writer = csv.writer(output, delimiter="\t")
-
-    column_headers = ["line_no", "line", "username", "site", "last_edit_utc", "last_edit_date"]
-    writer.writerow(column_headers)
+    writer = csv.DictWriter(output, delimiter="\t", fieldnames=[
+        "line_no", "line", "username", "site", "last_edit_utc", "last_edit_date"
+    ])
+    writer.writeheader()
 
     for file in input_file:
         line_count = 0
@@ -108,7 +108,9 @@ def main(input_type, input_file, output, additional_site):
             # Convert every line into a list of usernames.
             match input_type:
                 case "mediawiki":
+                    # TODO: should probably move this into its own function.
                     line_usernames = parse_line(line)
+                    usernames_output_on_line = 0
                     for username in line_usernames:
                         if username in usernames_processed:
                             # Note that this means that a particular username/site combination won't be processed twice.
@@ -128,9 +130,25 @@ def main(input_type, input_file, output, additional_site):
                             last_edit = get_last_edit(username.username, site)
                             logging.info(f"Last edit for {username.username}@{site} found as {last_edit} " +
                                          f"on line {line_count} out of {total_lines} ({line_count / total_lines * 100:.2f}%).")
-                            writer.writerow([line_count, line, username.username, site, last_edit, last_edit.split("T")[0]])
+                            writer.writerow({
+                                'line_no': line_count,
+                                'line': line,
+                                'username': username.username,
+                                'site': site,
+                                'last_edit_utc': last_edit,
+                                'last_edit_date': last_edit.split("T")[0]
+                            })
+                            usernames_output_on_line += 1
 
-                    time.sleep(SLEEP_BETWEEN_REQUESTS)
+                    # If we haven't written out anything, write out an empty line with just the line number and line.
+                    if usernames_output_on_line == 0:
+                        writer.writerow({
+                            'line_count': line_count,
+                            'line': line
+                        })
+
+                    # Sleep between lines.
+                    time.sleep(SLEEP_BETWEEN_LINES)
                 case _:
                     raise NotImplementedError(f"Input type {input_type} is not implemented")
 
