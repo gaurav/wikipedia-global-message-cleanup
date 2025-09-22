@@ -84,7 +84,8 @@ def get_last_edit(username, site):
 @click.argument("input_file", type=click.File("r"), nargs=-1)
 @click.option("--output", "-o", type=click.File("w"), default=sys.stdout)
 @click.option('--additional-site', '-s', multiple=True, help='Additional sites to check, e.g. "wikidata.org"')
-def main(input_type, input_file, output, additional_site):
+@click.option('--threshold-year', type=int, help="Only display usernames for users who have edited in the threshold year or later.")
+def main(input_type, input_file, output, additional_site, threshold_year):
     usernames_processed = set()
 
     # Count the lines so we can track progress.
@@ -129,13 +130,21 @@ def main(input_type, input_file, output, additional_site):
                             last_edit = get_last_edit(username.username, site)
                             logging.info(f"Last edit for {username.username}@{site} found as {last_edit} " +
                                          f"on line {line_count} out of {total_lines} ({line_count / total_lines * 100:.2f}%).")
+
+                            last_edit_date = last_edit.split("T")[0]
+                            year = int(last_edit[0:4])
+                            if threshold_year and 2000 < year < threshold_year:
+                                logging.info(f"Blanking edit information for {username.username}@{site} because last edit year was {year} (before {threshold_year}).")
+                                last_edit = None
+                                last_edit_date = None
+
                             writer.writerow({
                                 'line_no': line_count,
                                 'line': line,
                                 'username': username.username,
                                 'site': site,
                                 'last_edit_utc': last_edit,
-                                'last_edit_date': last_edit.split("T")[0]
+                                'last_edit_date': last_edit_date,
                             })
                             usernames_output_on_line += 1
 
