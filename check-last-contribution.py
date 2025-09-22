@@ -150,7 +150,7 @@ def main(input_type, input_file, output, additional_site, threshold_active, thre
 
                             writer.writerow({
                                 'line_no': line_count,
-                                'line': line,
+                                'line': line.rstrip('\n'),
                                 'username': username.username,
                                 'site': site,
                                 'last_edit_utc': last_edit,
