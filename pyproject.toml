@@ -1,0 +1,15 @@
+[project]
+name = "wikipedia-global-message-cleanup"
+version = "0.1.0"
+description = "Python tools for cleaning up Wikipedia GlobalMessage lists"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.2.1",
+    "requests>=2.32.5",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.13.0",
+]
