@@ -1,7 +1,6 @@
 import re
 import sys
 import time
-from collections import defaultdict
 from dataclasses import dataclass
 
 import requests
@@ -100,8 +99,8 @@ def main(input_type, input_file, output, additional_site):
     ])
     writer.writeheader()
 
+    line_count = 0
     for file in input_file:
-        line_count = 0
         for line in file:
             line_count += 1
 
@@ -143,7 +142,7 @@ def main(input_type, input_file, output, additional_site):
                     # If we haven't written out anything, write out an empty line with just the line number and line.
                     if usernames_output_on_line == 0:
                         writer.writerow({
-                            'line_count': line_count,
+                            'line_no': line_count,
                             'line': line
                         })
 
