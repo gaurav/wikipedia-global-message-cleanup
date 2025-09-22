@@ -56,6 +56,7 @@ def get_last_edit(username, site):
     }
 
     for attempt in range(1, MAX_RETRIES + 1):
+        resp = None
         try:
             resp = requests.get(api_url, params=params, timeout=10, headers={
                 'User-Agent': USER_AGENT,
@@ -87,6 +88,12 @@ def get_last_edit(username, site):
 def main(input_type, input_file, output, additional_site):
     usernames_processed = set()
 
+    # Count the lines so we can track progress.
+    total_lines = 0
+    for file in input_file:
+        total_lines += len(file.readlines())
+        file.seek(0)
+
     # Write output.
     writer = csv.writer(output, delimiter="\t")
 
@@ -108,13 +115,19 @@ def main(input_type, input_file, output, additional_site):
                             continue
 
                         # We may need to expand the list of sites we've processed for this username.
-                        sites = set(username.site)
+                        sites = {username.site}
                         if additional_site:
                             sites.update(additional_site)
 
+                        # Go through all the sites, and keep adding them to usernames_processed as we go to avoid duplicates.
                         for site in sites:
-                            last_edit = get_last_edit(username, site)
-                            logging.info(f"Last edit for {username}@{site} found as {last_edit} on line {line_count}.")
+                            username_to_process = UsernameWithSite(username.username, site)
+                            if username_to_process in usernames_processed:
+                                continue
+                            usernames_processed.add(username_to_process)
+                            last_edit = get_last_edit(username.username, site)
+                            logging.info(f"Last edit for {username.username}@{site} found as {last_edit} " +
+                                         f"on line {line_count} out of {total_lines} ({line_count / total_lines * 100:.2f}%).")
                             writer.writerow([line_count, line, username, site, last_edit])
 
                     time.sleep(SLEEP_BETWEEN_REQUESTS)
