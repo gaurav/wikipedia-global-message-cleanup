@@ -85,12 +85,16 @@ def get_last_edit(username, site):
 @click.option("--output", "-o", type=click.File("w"), default=sys.stdout)
 @click.option('--additional-site', '-s', multiple=True, help='Additional sites to check, e.g. "wikidata.org"')
 def main(input_type, input_file, output, additional_site):
-    usernames = []
     usernames_processed = set()
+
+    # Write output.
+    writer = csv.writer(output, delimiter="\t")
+
+    column_headers = ["line_no", "line", "username", "site", "last_edit_utc"]
+    writer.writerow(column_headers)
 
     for file in input_file:
         line_count = 0
-        username_count = 0
         for line in file:
             line_count += 1
 
@@ -99,52 +103,27 @@ def main(input_type, input_file, output, additional_site):
                 case "mediawiki":
                     line_usernames = parse_line(line)
                     for username in line_usernames:
-                        if username not in usernames_processed:
-                            usernames.append(username)
-                            username_count += 1
+                        if username in usernames_processed:
+                            # Note that this means that a particular username/site combination won't be processed twice.
+                            continue
+
+                        # We may need to expand the list of sites we've processed for this username.
+                        sites = set(username.site)
+                        if additional_site:
+                            sites.update(additional_site)
+
+                        for site in sites:
+                            last_edit = get_last_edit(username, site)
+                            logging.info(f"Last edit for {username}@{site} found as {last_edit} on line {line_count}.")
+                            writer.writerow([line_count, line, username, site, last_edit])
+
+                    time.sleep(SLEEP_BETWEEN_REQUESTS)
                 case _:
                     raise NotImplementedError(f"Input type {input_type} is not implemented")
 
-        logging.info(f"Read {line_count} lines containing {username_count} unique usernames from {file.name}.")
-
-    # Let's break down our username/site mapping into a list of username-to-sites mappings.
-    username_sites = defaultdict(set)
-    site_set = set(map(lambda username: username.site, usernames))
-    for uname in usernames:
-        username_sites[uname.username].add(uname.site)
-
-    logging.info(f"Found {len(usernames)} unique usernames across {len(site_set)} sites: sites={sorted(site_set)}.")
-
-    # Add additional sites to every username.
-    for username in username_sites.keys():
-        username_sites[username].update(set(additional_site))
-    site_list = sorted(site_set) + list(additional_site)
-
-    # Write output.
-    writer = csv.writer(output, delimiter="\t")
-
-    column_headers = ["username"]
-    for site in site_list:
-        column_headers.append(re.sub(r'[^\w\\.]', '_', 'last_edited_utc_on_' + site))
-    writer.writerow(column_headers)
-
-    results_count = 0
-    for username in username_sites.keys():
-        logging.info(f"Looking up {username} ({results_count}/{len(username_sites)})")
-        row = [username]
-        for site in site_list:
-            if site not in username_sites[username]:
-                row.append('')
-            else:
-                last_edit = get_last_edit(username, site)
-                logging.info(f"Last edit for {username}@{site} found as {last_edit}.")
-                row.append(last_edit)
-
-        writer.writerow(row)
-        results_count += 1
-        time.sleep(SLEEP_BETWEEN_REQUESTS)
-
-    logging.info(f"Done. {results_count} results written to {output.name}.")
+    usernames = set(map(lambda uname: uname.username, usernames_processed))
+    sites = set(map(lambda uname: uname.site, usernames_processed))
+    logging.info(f"Done. {len(usernames)} unique usernames on {len(sites)} ({sites}) from {line_count} lines written to {output.name}.")
 
 
 if __name__ == "__main__":
