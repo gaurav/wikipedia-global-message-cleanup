@@ -128,7 +128,7 @@ def main(input_type, input_file, output, additional_site):
                             last_edit = get_last_edit(username.username, site)
                             logging.info(f"Last edit for {username.username}@{site} found as {last_edit} " +
                                          f"on line {line_count} out of {total_lines} ({line_count / total_lines * 100:.2f}%).")
-                            writer.writerow([line_count, line, username, site, last_edit, last_edit.split("T")[0]])
+                            writer.writerow([line_count, line, username.username, site, last_edit, last_edit.split("T")[0]])
 
                     time.sleep(SLEEP_BETWEEN_REQUESTS)
                 case _:
