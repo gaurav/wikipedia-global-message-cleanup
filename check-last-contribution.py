@@ -84,8 +84,9 @@ def get_last_edit(username, site):
 @click.argument("input_file", type=click.File("r"), nargs=-1)
 @click.option("--output", "-o", type=click.File("w"), default=sys.stdout)
 @click.option('--additional-site', '-s', multiple=True, help='Additional sites to check, e.g. "wikidata.org"')
-@click.option('--threshold-year', type=int, help="Only display usernames for users who have edited in the threshold year or later.")
-def main(input_type, input_file, output, additional_site, threshold_year):
+@click.option('--threshold-active', type=int, help="Last edits after the active threshold will be marked as active.")
+@click.option('--threshold-inactive', type=int, help="Last edits after the inactive threshold but before the active threshold will be marked as inactive.")
+def main(input_type, input_file, output, additional_site, threshold_active, threshold_inactive):
     usernames_processed = set()
 
     # Count the lines so we can track progress.
@@ -96,7 +97,7 @@ def main(input_type, input_file, output, additional_site, threshold_year):
 
     # Write output.
     writer = csv.DictWriter(output, delimiter="\t", fieldnames=[
-        "line_no", "line", "username", "site", "last_edit_utc", "last_edit_date"
+        "line_no", "line", "username", "site", "last_edit_utc", "last_edit_date", "threshold_result"
     ])
     writer.writeheader()
 
@@ -127,16 +128,25 @@ def main(input_type, input_file, output, additional_site, threshold_year):
                             if username_to_process in usernames_processed:
                                 continue
                             usernames_processed.add(username_to_process)
-                            last_edit = get_last_edit(username.username, site)
-                            logging.info(f"Last edit for {username.username}@{site} found as {last_edit} " +
-                                         f"on line {line_count} out of {total_lines} ({line_count / total_lines * 100:.2f}%).")
 
+
+                            last_edit = get_last_edit(username.username, site)
                             last_edit_date = last_edit.split("T")[0]
-                            year = int(last_edit[0:4])
-                            if threshold_year and 2000 < year < threshold_year:
-                                logging.info(f"Blanking edit information for {username.username}@{site} because last edit year was {year} (before {threshold_year}).")
-                                last_edit = None
-                                last_edit_date = None
+
+                            threshold_result = "none"
+                            if threshold_active and threshold_inactive and last_edit_date != '':
+                                last_edit_year = last_edit[0:4]
+                                if last_edit_year.isdigit():
+                                    year = int(last_edit_year)
+                                    if year >= threshold_active:
+                                        threshold_result = "active"
+                                    elif year >= threshold_inactive:
+                                        threshold_result = "inactive"
+                                    else:
+                                        threshold_result = "delete"
+
+                            logging.info(f"Last edit for {username.username}@{site} found as {last_edit} (threshold: {threshold_result}) " +
+                                         f"on line {line_count} out of {total_lines} ({line_count / total_lines * 100:.2f}%).")
 
                             writer.writerow({
                                 'line_no': line_count,
@@ -145,6 +155,7 @@ def main(input_type, input_file, output, additional_site, threshold_year):
                                 'site': site,
                                 'last_edit_utc': last_edit,
                                 'last_edit_date': last_edit_date,
+                                'threshold_result': threshold_result
                             })
                             usernames_output_on_line += 1
 
@@ -162,7 +173,7 @@ def main(input_type, input_file, output, additional_site, threshold_year):
 
     usernames = set(map(lambda uname: uname.username, usernames_processed))
     sites = set(map(lambda uname: uname.site, usernames_processed))
-    logging.info(f"Done. {len(usernames)} unique usernames on {len(sites)} ({sites}) from {line_count} lines written to {output.name}.")
+    logging.info(f"Done. {len(usernames)} unique usernames on {len(sites)} sites ({sites}) from {line_count} lines written to {output.name}.")
 
 
 if __name__ == "__main__":
