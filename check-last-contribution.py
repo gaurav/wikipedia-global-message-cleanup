@@ -126,6 +126,16 @@ def main(input_type, input_file, output, additional_site, threshold_active, thre
                         for site in sites:
                             username_to_process = UsernameWithSite(username.username, site)
                             if username_to_process in usernames_processed:
+                                writer.writerow({
+                                    'line_no': line_count,
+                                    'line': line.rstrip('\n'),
+                                    'username': username.username,
+                                    'site': site,
+                                    'last_edit_utc': None,
+                                    'last_edit_date': None,
+                                    'status': 'duplicate',
+                                })
+                                usernames_output_on_line += 1
                                 continue
                             usernames_processed.add(username_to_process)
 
