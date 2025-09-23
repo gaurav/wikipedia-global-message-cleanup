@@ -97,7 +97,7 @@ def main(input_type, input_file, output, additional_site, threshold_active, thre
 
     # Write output.
     writer = csv.DictWriter(output, delimiter="\t", fieldnames=[
-        "line_no", "line", "username", "site", "last_edit_utc", "last_edit_date", "threshold_result"
+        "line_no", "line", "username", "site", "last_edit_utc", "last_edit_date", "status"
     ])
     writer.writeheader()
 
@@ -126,6 +126,16 @@ def main(input_type, input_file, output, additional_site, threshold_active, thre
                         for site in sites:
                             username_to_process = UsernameWithSite(username.username, site)
                             if username_to_process in usernames_processed:
+                                writer.writerow({
+                                    'line_no': line_count,
+                                    'line': line.rstrip('\n'),
+                                    'username': username.username,
+                                    'site': site,
+                                    'last_edit_utc': None,
+                                    'last_edit_date': None,
+                                    'status': 'duplicate',
+                                })
+                                usernames_output_on_line += 1
                                 continue
                             usernames_processed.add(username_to_process)
 
@@ -133,19 +143,19 @@ def main(input_type, input_file, output, additional_site, threshold_active, thre
                             last_edit = get_last_edit(username.username, site)
                             last_edit_date = last_edit.split("T")[0]
 
-                            threshold_result = "none"
+                            status = "none"
                             if threshold_active and threshold_inactive and last_edit_date != '':
                                 last_edit_year = last_edit[0:4]
                                 if last_edit_year.isdigit():
                                     year = int(last_edit_year)
                                     if year >= threshold_active:
-                                        threshold_result = "active"
+                                        status = "active"
                                     elif year >= threshold_inactive:
-                                        threshold_result = "inactive"
+                                        status = "inactive"
                                     else:
-                                        threshold_result = "delete"
+                                        status = "delete"
 
-                            logging.info(f"Last edit for {username.username}@{site} found as {last_edit} (threshold: {threshold_result}) " +
+                            logging.info(f"Last edit for {username.username}@{site} found as {last_edit} (threshold: {status}) " +
                                          f"on line {line_count} out of {total_lines} ({line_count / total_lines * 100:.2f}%).")
 
                             writer.writerow({
@@ -155,7 +165,7 @@ def main(input_type, input_file, output, additional_site, threshold_active, thre
                                 'site': site,
                                 'last_edit_utc': last_edit,
                                 'last_edit_date': last_edit_date,
-                                'threshold_result': threshold_result
+                                'status': status
                             })
                             usernames_output_on_line += 1
 
