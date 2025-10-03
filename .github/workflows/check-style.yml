@@ -11,7 +11,7 @@ jobs:
 
       - name: Install Python
         uses: actions/setup-python@v5
-        with:
+        # with:
           # python-version: "3.11"
           # Should read this from .python-version.
 

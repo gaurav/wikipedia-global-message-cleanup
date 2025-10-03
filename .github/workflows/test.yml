@@ -14,7 +14,7 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v5
-        with:
+        # with:
           # python-version: "3.12"   # match your project's Python version
           # setup-python should pick up the version from .python-version.
 
