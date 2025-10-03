@@ -1,8 +1,6 @@
 import time
 import logging
 import requests
-from typing import Optional
-
 
 class WikimediaAPIClient:
     """Handles API requests to Wikimedia sites with retry logic."""
