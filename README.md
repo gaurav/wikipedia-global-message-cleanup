@@ -14,7 +14,7 @@ The idea is that you can download the MediaWiki source code from a GlobalMessage
 to a file called e.g. `global-message-list-2025sep15.mediawiki.txt`.
 
 ```shell
-$ uv run check-last-contribution.py global-message-list-2025sep15.mediawiki.txt -o list-with-last-edited-dates.tsv
+$ uv run check-last-contribution global-message-list-2025sep15.mediawiki.txt -o list-with-last-edited-dates.tsv
 ```
 
 You can also specify additional sites that should be checked for each user by
@@ -47,3 +47,7 @@ Some example output (with lines excised for privacy):
 | 555                                                                                       | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          |                                                                                                                                               |                                                       |                      |                    |                      |
 | 565                                                                                                                                                                                                                                     | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          
 | 598 |  \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                         |                                                                                                                                               |                                                       |                      |                    |                      |
+
+### Testing
+
+This package has some unit tests. To run them, run `uv run pytest`.
