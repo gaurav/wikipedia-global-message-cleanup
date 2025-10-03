@@ -1,6 +1,7 @@
 import pytest
 from lib.parsers import MediaWikiParser
 
+
 class TestMediaWikiParser:
     @pytest.fixture
     def mediawiki_parser(self):

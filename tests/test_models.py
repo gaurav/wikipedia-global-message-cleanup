@@ -1,5 +1,6 @@
 from lib.models import UsernameWithSite
 
+
 class TestModels:
     def test_username_with_site_creation(self):
         user = UsernameWithSite("TestUser", "en.wikipedia.org")

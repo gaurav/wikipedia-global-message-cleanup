@@ -1,5 +1,6 @@
 from lib.analyzer import ContributionAnalyzer
 
+
 class TestContributionAnalyzer:
     def test_no_thresholds(self):
         analyzer = ContributionAnalyzer()
