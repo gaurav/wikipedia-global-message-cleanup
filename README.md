@@ -14,7 +14,7 @@ The idea is that you can download the MediaWiki source code from a GlobalMessage
 to a file called e.g. `global-message-list-2025sep15.mediawiki.txt`.
 
 ```shell
-$ uv run check-last-contribution.py global-message-list-2025sep15.mediawiki.txt -o list-with-last-edited-dates.tsv
+$ uv run check-last-contribution global-message-list-2025sep15.mediawiki.txt -o list-with-last-edited-dates.tsv
 ```
 
 You can also specify additional sites that should be checked for each user by
