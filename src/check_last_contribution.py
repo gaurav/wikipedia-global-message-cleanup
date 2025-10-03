@@ -7,7 +7,7 @@ from lib.output_writer import TSVWriter
 from lib.processor import UserProcessor
 
 # Configuration
-USER_AGENT = 'check-last-contribution.py (gaurav@ggvaidya.com)'
+USER_AGENT = 'check-last-contribution.py (https://github.com/gaurav/wikipedia-global-message-cleanup)'
 MAX_RETRIES = 5
 SLEEP_BETWEEN_LINES = 1.5
 BACKOFF_FACTOR = 2
