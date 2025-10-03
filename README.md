@@ -47,3 +47,7 @@ Some example output (with lines excised for privacy):
 | 555                                                                                       | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          |                                                                                                                                               |                                                       |                      |                    |                      |
 | 565                                                                                                                                                                                                                                     | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          
 | 598 |  \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                         |                                                                                                                                               |                                                       |                      |                    |                      |
+
+### Testing
+
+This package has some unit tests. To run them, run `uv run pytest`.
