@@ -53,6 +53,16 @@ logging.basicConfig(level=logging.INFO)
         "last_edit_year < YEAR → delete)."
     ),
 )
+@click.option(
+    "--allow-duplicates",
+    is_flag=True,
+    default=False,
+    help=(
+        "Re-process duplicate (username, site) pairs instead of skipping them. "
+        "By default, duplicates are skipped and a fallback row is written with "
+        "only line_no and line populated (username, site, and edit fields are empty)."
+    ),
+)
 def main(
     input_type,
     input_file,
@@ -60,6 +70,7 @@ def main(
     additional_site,
     active_from,
     inactive_from,
+    allow_duplicates,
 ):
     """
     This command-line utility processes user data from given INPUT_FILEs by looking for
@@ -72,11 +83,17 @@ def main(
       active   — last edit year >= --active-from
       inactive — --inactive-from <= last edit year < --active-from
       delete   — last edit year < --inactive-from
+
+    When deduplication is active (the default), each (username, site) pair is
+    looked up only once. Subsequent occurrences produce a fallback row in the
+    output with line_no and line populated but username, site, last_edit_utc,
+    last_edit_date, and threshold_result left empty. Use --allow-duplicates to
+    re-query every occurrence instead.
     """
     api_client = WikimediaAPIClient(USER_AGENT, MAX_RETRIES, BACKOFF_FACTOR)
     analyzer = ContributionAnalyzer(active_from, inactive_from)
     output_writer = TSVWriter(output)
-    processor = UserProcessor(api_client, analyzer, SLEEP_BETWEEN_LINES)
+    processor = UserProcessor(api_client, analyzer, SLEEP_BETWEEN_LINES, deduplicate=not allow_duplicates)
 
     processor.process_files(
         list(input_file), output_writer, list(additional_site), output.name

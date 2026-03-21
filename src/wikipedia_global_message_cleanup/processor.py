@@ -16,11 +16,13 @@ class UserProcessor:
         api_client: WikimediaAPIClient,
         analyzer: ContributionAnalyzer,
         sleep_between_lines: float = 1.5,
+        deduplicate: bool = True,
     ):
         self.api_client = api_client
         self.analyzer = analyzer
         self.parser = MediaWikiParser()
         self.sleep_between_lines = sleep_between_lines
+        self.deduplicate = deduplicate
         self.processed_users: Set[UsernameWithSite] = set()
 
     def process_files(
@@ -60,7 +62,7 @@ class UserProcessor:
         usernames_output = 0
 
         for username in usernames:
-            if username in self.processed_users:
+            if self.deduplicate and username in self.processed_users:
                 continue
 
             # Build sites list: original site + additional sites
@@ -70,7 +72,7 @@ class UserProcessor:
 
             for site in sites:
                 user_site = UsernameWithSite(username.username, site)
-                if user_site in self.processed_users:
+                if self.deduplicate and user_site in self.processed_users:
                     continue
 
                 self.processed_users.add(user_site)

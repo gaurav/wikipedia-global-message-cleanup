@@ -7,10 +7,10 @@ from wikipedia_global_message_cleanup.output_writer import TSVWriter
 from wikipedia_global_message_cleanup.processor import UserProcessor
 
 
-def _make_processor():
+def _make_processor(deduplicate=True):
     api_client = MagicMock()
     analyzer = ContributionAnalyzer()
-    return UserProcessor(api_client, analyzer), api_client
+    return UserProcessor(api_client, analyzer, deduplicate=deduplicate), api_client
 
 
 def _run(processor, lines, additional_sites=None):
@@ -65,6 +65,16 @@ class TestUserProcessor:
         assert api_client.get_last_edit.call_count == 2
         sites = {r["site"] for r in rows}
         assert sites == {"en.wikipedia.org", "commons.wikimedia.org"}
+
+    def test_allow_duplicates_reprocesses_same_user(self):
+        processor, api_client = _make_processor(deduplicate=False)
+        api_client.get_last_edit.return_value = "2023-05-01T12:00:00Z"
+        line = "* {{target | user = Alice | site = en.wikipedia.org}}\n"
+        rows = _run(processor, [line, line])
+        assert api_client.get_last_edit.call_count == 2
+        assert len(rows) == 2
+        assert rows[0]["username"] == "Alice"
+        assert rows[1]["username"] == "Alice"
 
     def test_additional_site_dedup_with_original_site(self):
         processor, api_client = _make_processor()
