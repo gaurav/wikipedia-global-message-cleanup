@@ -4,7 +4,7 @@ Python scripts to clean up Wikipedia GlobalMessage delivery lists.
 
 All the scripts need [uv](https://docs.astral.sh/uv/) to run them.
 
-## check-last-contribution.py - Check the last contribution times for a list of Wikipedia users
+## check-last-contribution — Check the last contribution times for a list of Wikipedia users
 
 This is intended to be used to clean up a list of Wikipedia usernames, such as from a GlobalMessage
 delivery list.

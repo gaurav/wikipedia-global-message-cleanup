@@ -42,7 +42,8 @@ class UserProcessor:
                 self._process_line(
                     line, line_count, total_lines, output_writer, additional_sites
                 )
-                time.sleep(self.sleep_between_lines)
+                if line_count < total_lines:
+                    time.sleep(self.sleep_between_lines)
 
         self._log_summary(line_count, output_name)
 

@@ -64,21 +64,7 @@ def main(
     Additionally, an active and inactive threshold year may be specified. Users who last contributed in the active
     threshold year or later will be marked as active, and users who last contributed in the inactive threshold year
     or later but not within the active period will be marked as inactive. Other users will be given a status of `none`.
-
-    \f
-    :param input_type: Type of the input data. The only current supported type is "mediawiki".
-    :param input_file: List of input files containing user contribution data.
-    :param output: Output file to write processed results in TSV format. Defaults to sys.stdout.
-    :param additional_site: List of additional sites to include in the checks.
-    :param threshold_active: Threshold defining the number of last edits after which
-                             users are marked as active.
-    :param threshold_inactive: Threshold defining the number of last edits after which
-                               users are marked as inactive but not active.
-    :return: None
     """
-    if input_type != "mediawiki":
-        raise NotImplementedError(f"Input type {input_type} is not implemented")
-
     api_client = WikimediaAPIClient(USER_AGENT, MAX_RETRIES, BACKOFF_FACTOR)
     analyzer = ContributionAnalyzer(threshold_active, threshold_inactive)
     output_writer = TSVWriter(output)
