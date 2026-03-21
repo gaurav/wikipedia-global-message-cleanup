@@ -1,6 +1,6 @@
 import time
 import logging
-from typing import Set, List, TextIO
+from typing import Set, List, TextIO, Optional
 from .models import UsernameWithSite
 from .parsers import MediaWikiParser
 from .api_client import WikimediaAPIClient
@@ -27,7 +27,7 @@ class UserProcessor:
         self,
         input_files: List[TextIO],
         output_writer: TSVWriter,
-        additional_sites: List[str] = None,
+        additional_sites: Optional[List[str]] = None,
         output_name: str = "output",
     ):
         """Process all input files and generate output with user contribution data."""
@@ -53,7 +53,7 @@ class UserProcessor:
         line_count: int,
         total_lines: int,
         output_writer: TSVWriter,
-        additional_sites: List[str],
+        additional_sites: Optional[List[str]] = None,
     ):
         """Process a single line from input file, extracting and analyzing usernames."""
         usernames = list(self.parser.parse_line(line))
