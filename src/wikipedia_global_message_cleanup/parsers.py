@@ -1,6 +1,9 @@
+import logging
 import re
 from typing import Iterator
 from .models import UsernameWithSite
+
+_LOOSE_TARGET_RE = re.compile(r"{{\s*target\b", re.IGNORECASE)
 
 
 class MediaWikiParser:
@@ -12,9 +15,15 @@ class MediaWikiParser:
             r"{{\s*target\s*\|\s*user\s*=\s*(.+?)\s*(?:\|\s*site\s*=\s*(.+?)\s*)?\s*}}",
             line,
         )
+        results = []
         for target in targets:
             username = target[0].strip()
             if not username:
                 continue
             site = target[1].strip() if target[1] else None
-            yield UsernameWithSite(username, site)
+            results.append(UsernameWithSite(username, site))
+        if not results and _LOOSE_TARGET_RE.search(line):
+            logging.warning(
+                "Possible malformed {{target}} template — please double-check: %r", line
+            )
+        return iter(results)
