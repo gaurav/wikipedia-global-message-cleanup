@@ -62,9 +62,6 @@ class UserProcessor:
         usernames_output = 0
 
         for username in usernames:
-            if self.deduplicate and username in self.processed_users:
-                continue
-
             # Build sites list: original site + additional sites
             sites = {username.site} if username.site else set()
             if additional_sites:
@@ -73,6 +70,16 @@ class UserProcessor:
             for site in sites:
                 user_site = UsernameWithSite(username.username, site)
                 if self.deduplicate and user_site in self.processed_users:
+                    output_writer.write_row(
+                        {
+                            "line_no": line_count,
+                            "line": line.rstrip("\n"),
+                            "username": username.username,
+                            "site": site,
+                            "threshold_result": "duplicate",
+                        }
+                    )
+                    usernames_output += 1
                     continue
 
                 self.processed_users.add(user_site)

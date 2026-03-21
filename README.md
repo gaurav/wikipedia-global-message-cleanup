@@ -19,7 +19,7 @@ $ uv run check-last-contribution global-message-list-2025sep15.mediawiki.txt -o 
 
 You can also specify additional sites that should be checked for each user by
 using `-s commons.wikimedia.org -s wikidata.org`. No username/site combination will be checked
-more than once, and subsequent mentions of that username will have blank fields in the output TSV.
+more than once. Subsequent mentions produce a row with `username` and `site` populated but `last_edit_utc` and `last_edit_date` left empty, and `threshold_result` set to `duplicate`.
 
 You can also specify two thresholds:
 * The `--threshold-inactive` year will be assumed to be the most recent year after which usernames will be marked as inactive (e.g. `2015`).
@@ -32,21 +32,18 @@ into the active and inactive pages. The whole workflow of this script needs an o
 
 Some example output (with lines excised for privacy):
 
-| **line_no**                                                                               | **line**                                                                                                                                      | **username** | **site**                                              | **last_edit_utc**    | **last_edit_date** | **threshold_result** |
-|-------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------| ------------ | ----------------------------------------------------- | -------------------- | ------------------ | -------------------- |
-| 1                                                                                         | See also: the list of [[/Events\|event attendees]] if you want to reach everybody who's ever attended a [[North Carolina Wikipedians]] event. |              |                                                       |                      |                    |                      |
-| 2                                                                                         |                                                                                                                                               |              |                                                       |                      |                    |
-| 3                                                                                         | \== Users from our ''[[North Carolina Wikipedians#Participants and Supporters\|Participants and Supporters list]]'' ==                        
-| 26                                                                                        | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          | Gaurav       | [wikidata.org](http://wikidata.org)                   | 2025-09-11T04:32:39Z | 2025-09-11         | active          
-| 26                                                                                        | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          | Gaurav       | [en.wikipedia.org](http://en.wikipedia.org)           | 2025-09-19T05:10:24Z | 2025-09-19         | active               |
-| 26          | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}} | Gaurav       | [commons.wikimedia.org](http://commons.wikimedia.org) | 2025-09-19T03:59:10Z | 2025-09-19         | active               |
-| 26                                                                                        | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          
-| 152                                                                                       | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          
-| 475                                                                                       | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          |              |                                                       |                      |                    |                      |
-| 501                                                                                                                                                                                                                                   | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          
-| 555                                                                                       | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          |                                                                                                                                               |                                                       |                      |                    |                      |
-| 565                                                                                                                                                                                                                                     | \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                          
-| 598 |  \* {{target \| user = Gaurav \| site = [en.wikipedia.org](http://en.wikipedia.org)}}                                                         |                                                                                                                                               |                                                       |                      |                    |                      |
+| **line_no** | **line** | **username** | **site** | **last_edit_utc** | **last_edit_date** | **threshold_result** |
+|-------------|----------|--------------|----------|-------------------|--------------------|----------------------|
+| 1 | See also: the list of [[/Events\|event attendees]] … | | | | | |
+| 2 | | | | | | |
+| 3 | \== Users from our ''[[North Carolina Wikipedians#Participants and Supporters\|Participants and Supporters list]]'' == | | | | | |
+| 26 | \* {{target \| user = Gaurav \| site = en.wikipedia.org}} | Gaurav | wikidata.org | 2025-09-11T04:32:39Z | 2025-09-11 | active |
+| 26 | \* {{target \| user = Gaurav \| site = en.wikipedia.org}} | Gaurav | en.wikipedia.org | 2025-09-19T05:10:24Z | 2025-09-19 | active |
+| 26 | \* {{target \| user = Gaurav \| site = en.wikipedia.org}} | Gaurav | commons.wikimedia.org | 2025-09-19T03:59:10Z | 2025-09-19 | active |
+| 152 | \* {{target \| user = Gaurav \| site = en.wikipedia.org}} | Gaurav | en.wikipedia.org | | | duplicate |
+| 475 | \* {{target \| user = Gaurav \| site = en.wikipedia.org}} | Gaurav | en.wikipedia.org | | | duplicate |
+| 555 | \* {{target \| user = Gaurav \| site = en.wikipedia.org}} | Gaurav | en.wikipedia.org | | | duplicate |
+| 598 | \* {{target \| user = Gaurav \| site = en.wikipedia.org}} | Gaurav | en.wikipedia.org | | | duplicate |
 
 ### Testing
 

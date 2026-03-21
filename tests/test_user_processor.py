@@ -43,7 +43,7 @@ class TestUserProcessor:
         assert rows[0]["last_edit_date"] == "2023-05-01"
         assert rows[0]["threshold_result"] == "none"
 
-    def test_duplicate_user_skipped_second_occurrence_is_fallback(self):
+    def test_duplicate_user_second_occurrence_is_duplicate_row(self):
         processor, api_client = _make_processor()
         api_client.get_last_edit.return_value = "2023-05-01T12:00:00Z"
         line = "* {{target | user = Alice | site = en.wikipedia.org}}\n"
@@ -51,7 +51,11 @@ class TestUserProcessor:
         assert api_client.get_last_edit.call_count == 1
         assert len(rows) == 2
         assert rows[0]["username"] == "Alice"
-        assert rows[1]["username"] == ""
+        assert rows[0]["threshold_result"] == "none"
+        assert rows[1]["username"] == "Alice"
+        assert rows[1]["site"] == "en.wikipedia.org"
+        assert rows[1]["last_edit_utc"] == ""
+        assert rows[1]["threshold_result"] == "duplicate"
 
     def test_additional_sites_writes_multiple_rows(self):
         processor, api_client = _make_processor()

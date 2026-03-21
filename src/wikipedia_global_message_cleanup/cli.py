@@ -59,8 +59,8 @@ logging.basicConfig(level=logging.INFO)
     default=False,
     help=(
         "Re-process duplicate (username, site) pairs instead of skipping them. "
-        "By default, duplicates are skipped and a fallback row is written with "
-        "only line_no and line populated (username, site, and edit fields are empty)."
+        "By default, duplicates produce a row with username and site populated, "
+        "last_edit_utc and last_edit_date empty, and threshold_result set to 'duplicate'."
     ),
 )
 def main(
@@ -85,10 +85,10 @@ def main(
       delete   — last edit year < --inactive-from
 
     When deduplication is active (the default), each (username, site) pair is
-    looked up only once. Subsequent occurrences produce a fallback row in the
-    output with line_no and line populated but username, site, last_edit_utc,
-    last_edit_date, and threshold_result left empty. Use --allow-duplicates to
-    re-query every occurrence instead.
+    looked up only once. Subsequent occurrences produce a row with line_no, line,
+    username, and site populated, last_edit_utc and last_edit_date left empty, and
+    threshold_result set to "duplicate". Use --allow-duplicates to re-query every
+    occurrence instead.
     """
     api_client = WikimediaAPIClient(USER_AGENT, MAX_RETRIES, BACKOFF_FACTOR)
     analyzer = ContributionAnalyzer(active_from, inactive_from)
