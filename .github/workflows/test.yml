@@ -22,4 +22,4 @@ jobs:
           enable-cache: true
 
       - name: Run tests with pytest
-        run: uv run pytest
+        run: uv run --group dev pytest
