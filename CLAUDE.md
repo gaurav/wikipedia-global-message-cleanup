@@ -29,8 +29,9 @@ uv run ruff check . --fix
 
 ## Architecture
 
-Source code lives under `src/` (standard src layout). The CLI entry point is `src/check_last_contribution.py`, registered as the `check-last-contribution` script via `[project.scripts]`. It delegates to `src/lib/processor.py`. The `src/lib/` package provides:
+Source code lives under `src/` (standard src layout) in a single package `src/wikipedia_global_message_cleanup/`. The CLI entry point is `src/wikipedia_global_message_cleanup/cli.py`, registered as the `check-last-contribution` script via `[project.scripts]`. It delegates to `processor.py`. The package provides:
 
+- **`cli.py`** — CLI entry point (`main` function)
 - **`models.py`** — `UsernameWithSite` and `ContributionResult` dataclasses
 - **`parsers.py`** — `MediaWikiParser` extracts `{{target | user = X | site = Y}}` patterns from input lines
 - **`api_client.py`** — `WikimediaAPIClient` queries `/w/api.php?action=query&list=usercontribs` with exponential backoff (5 retries, sleeps between lines to respect rate limits)

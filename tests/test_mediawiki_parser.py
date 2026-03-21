@@ -1,5 +1,5 @@
 import pytest
-from lib.parsers import MediaWikiParser
+from wikipedia_global_message_cleanup.parsers import MediaWikiParser
 
 
 class TestMediaWikiParser:

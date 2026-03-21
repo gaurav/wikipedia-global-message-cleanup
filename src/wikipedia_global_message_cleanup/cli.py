@@ -1,10 +1,10 @@
 import sys
 import click
 import logging
-from lib.api_client import WikimediaAPIClient
-from lib.analyzer import ContributionAnalyzer
-from lib.output_writer import TSVWriter
-from lib.processor import UserProcessor
+from .api_client import WikimediaAPIClient
+from .analyzer import ContributionAnalyzer
+from .output_writer import TSVWriter
+from .processor import UserProcessor
 
 # Configuration
 USER_AGENT = "check-last-contribution.py (https://github.com/gaurav/wikipedia-global-message-cleanup)"

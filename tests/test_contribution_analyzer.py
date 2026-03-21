@@ -1,4 +1,4 @@
-from lib.analyzer import ContributionAnalyzer
+from wikipedia_global_message_cleanup.analyzer import ContributionAnalyzer
 
 
 class TestContributionAnalyzer:

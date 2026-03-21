@@ -1,4 +1,4 @@
-from lib.models import UsernameWithSite
+from wikipedia_global_message_cleanup.models import UsernameWithSite
 
 
 class TestModels:
