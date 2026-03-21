@@ -1,6 +1,8 @@
 import time
 import logging
 from typing import Set, List, TextIO, Optional
+from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 from .models import UsernameWithSite
 from .parsers import MediaWikiParser
 from .api_client import WikimediaAPIClient
@@ -38,14 +40,15 @@ class UserProcessor:
             f.seek(0)
 
         line_count = 0
-        for file in input_files:
-            for line in file:
-                line_count += 1
-                self._process_line(
-                    line, line_count, total_lines, output_writer, additional_sites
-                )
-                if line_count < total_lines:
-                    time.sleep(self.sleep_between_lines)
+        with logging_redirect_tqdm():
+            with tqdm(total=total_lines, unit="line", desc="Processing") as pbar:
+                for file in input_files:
+                    for line in file:
+                        line_count += 1
+                        self._process_line(line, line_count, output_writer, additional_sites, pbar)
+                        pbar.update(1)
+                        if line_count < total_lines:
+                            time.sleep(self.sleep_between_lines)
 
         self._log_summary(line_count, output_name)
 
@@ -53,9 +56,9 @@ class UserProcessor:
         self,
         line: str,
         line_count: int,
-        total_lines: int,
         output_writer: TSVWriter,
         additional_sites: Optional[List[str]] = None,
+        pbar: Optional[tqdm] = None,
     ):
         """Process a single line from input file, extracting and analyzing usernames."""
         usernames = list(self.parser.parse_line(line))
@@ -82,14 +85,15 @@ class UserProcessor:
                     usernames_output += 1
                     continue
 
+                if pbar is not None:
+                    pbar.set_postfix(user=f"{username.username}@{site}")
                 self.processed_users.add(user_site)
                 last_edit = self.api_client.get_last_edit(username.username, site)
                 last_edit_date = last_edit.split("T")[0] if last_edit else ""
                 threshold_result = self.analyzer.analyze_contribution(last_edit)
 
                 logging.info(
-                    f"Last edit for {username.username}@{site} found as {last_edit} (threshold: {threshold_result}) "
-                    f"on line {line_count} out of {total_lines} ({line_count / total_lines * 100:.2f}%)."
+                    f"Last edit for {username.username}@{site} found as {last_edit} (threshold: {threshold_result})."
                 )
 
                 output_writer.write_row(
