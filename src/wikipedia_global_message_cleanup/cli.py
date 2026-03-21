@@ -37,22 +37,29 @@ logging.basicConfig(level=logging.INFO)
     help='Additional sites to check, e.g. "wikidata.org"',
 )
 @click.option(
-    "--threshold-active",
+    "--active-from",
     type=int,
-    help="Last edits after the active threshold year will be marked as active.",
+    help=(
+        "Minimum year of last edit to be classified as active "
+        "(last_edit_year >= YEAR → active)."
+    ),
 )
 @click.option(
-    "--threshold-inactive",
+    "--inactive-from",
     type=int,
-    help="Last edits after the inactive threshold year but before the active threshold year will be marked as inactive.",
+    help=(
+        "Minimum year of last edit to be classified as inactive "
+        "(YEAR <= last_edit_year < --active-from → inactive; "
+        "last_edit_year < YEAR → delete)."
+    ),
 )
 def main(
     input_type,
     input_file,
     output,
     additional_site,
-    threshold_active,
-    threshold_inactive,
+    active_from,
+    inactive_from,
 ):
     """
     This command-line utility processes user data from given INPUT_FILEs by looking for
@@ -61,12 +68,13 @@ def main(
     which the user contributed to the given site. If additional sites are specified, each user
     will be checked against them as well.
 
-    Additionally, an active and inactive threshold year may be specified. Users who last contributed in the active
-    threshold year or later will be marked as active, and users who last contributed in the inactive threshold year
-    or later but not within the active period will be marked as inactive. Other users will be given a status of `none`.
+    If --active-from and --inactive-from are supplied, users are classified as:
+      active   — last edit year >= --active-from
+      inactive — --inactive-from <= last edit year < --active-from
+      delete   — last edit year < --inactive-from
     """
     api_client = WikimediaAPIClient(USER_AGENT, MAX_RETRIES, BACKOFF_FACTOR)
-    analyzer = ContributionAnalyzer(threshold_active, threshold_inactive)
+    analyzer = ContributionAnalyzer(active_from, inactive_from)
     output_writer = TSVWriter(output)
     processor = UserProcessor(api_client, analyzer, SLEEP_BETWEEN_LINES)
 
