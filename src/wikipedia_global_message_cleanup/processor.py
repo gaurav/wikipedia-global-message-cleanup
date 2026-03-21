@@ -97,7 +97,7 @@ class UserProcessor:
                 usernames_output += 1
 
         if usernames_output == 0:
-            output_writer.write_row({"line_no": line_count, "line": line})
+            output_writer.write_row({"line_no": line_count, "line": line.rstrip("\n")})
 
     def _log_summary(self, line_count: int, output_name: str):
         """Log processing summary statistics."""
