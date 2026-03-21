@@ -32,3 +32,29 @@ class TestMediaWikiParser:
         line = "This is just regular text"
         results = list(mediawiki_parser.parse_line(line))
         assert len(results) == 0
+
+
+class TestMediaWikiParserMalformed:
+    @pytest.fixture
+    def mediawiki_parser(self):
+        return MediaWikiParser()
+
+    def test_target_without_user_field(self, mediawiki_parser):
+        results = list(mediawiki_parser.parse_line("{{target}}"))
+        assert len(results) == 0
+
+    def test_target_with_site_but_no_user(self, mediawiki_parser):
+        results = list(mediawiki_parser.parse_line("{{target | site = en.wikipedia.org}}"))
+        assert len(results) == 0
+
+    def test_target_with_empty_user_value(self, mediawiki_parser):
+        results = list(mediawiki_parser.parse_line("{{target | user = }}"))
+        assert len(results) == 0
+
+    def test_unclosed_target_template(self, mediawiki_parser):
+        results = list(mediawiki_parser.parse_line("* {{target | user = Alice | site = en.wikipedia.org"))
+        assert len(results) == 0
+
+    def test_target_keyword_case_sensitive(self, mediawiki_parser):
+        results = list(mediawiki_parser.parse_line("{{TARGET | user = Alice | site = en.wikipedia.org}}"))
+        assert len(results) == 0

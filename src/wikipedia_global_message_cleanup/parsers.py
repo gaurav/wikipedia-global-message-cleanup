@@ -14,5 +14,7 @@ class MediaWikiParser:
         )
         for target in targets:
             username = target[0].strip()
+            if not username:
+                continue
             site = target[1].strip() if target[1] else None
             yield UsernameWithSite(username, site)
