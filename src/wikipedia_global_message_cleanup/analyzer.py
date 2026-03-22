@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 
@@ -22,6 +23,8 @@ class ContributionAnalyzer:
             return "none"
 
         year = int(year_str)
+        if year < 2000 or year > datetime.now().year:
+            raise ValueError(f"Invalid year: '{year}' found in last edit timestamp: '{last_edit}'")
         if year >= self.active_from:
             return "active"
         elif year >= self.inactive_from:
