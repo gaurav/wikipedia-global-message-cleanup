@@ -22,8 +22,8 @@ using `-s commons.wikimedia.org -s wikidata.org`. No username/site combination w
 more than once. Subsequent mentions produce a row with `username` and `site` populated but `last_edit_utc` and `last_edit_date` left empty, and `threshold_result` set to `duplicate`.
 
 You can also specify two thresholds:
-* The `--threshold-inactive` year will be assumed to be the most recent year after which usernames will be marked as inactive (e.g. `2015`).
-* The `--threshold-active` year will be assumed to be the most recent year after which usernames will be marked as active (e.g. `2020`).
+* The `--inactive-from` year is the minimum year a user must have edited to avoid being marked as delete (e.g. `2015`).
+* The `--active-from` year is the minimum year a user must have edited to be marked as active (e.g. `2020`).
 
 At this moment, each line in the input file is retained in the output file in order to support moving
 names around in section -- we'll probably change this behavior in the future so that we produce

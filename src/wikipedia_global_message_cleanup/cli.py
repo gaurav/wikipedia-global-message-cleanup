@@ -7,9 +7,8 @@ from .output_writer import TSVWriter
 from .processor import UserProcessor
 
 # Configuration
-USER_AGENT = "check-last-contribution.py (https://github.com/gaurav/wikipedia-global-message-cleanup)"
+USER_AGENT = "check-last-contribution (https://github.com/gaurav/wikipedia-global-message-cleanup)"
 MAX_RETRIES = 5
-SLEEP_BETWEEN_LINES = 1.5
 BACKOFF_FACTOR = 2
 
 logging.basicConfig(level=logging.INFO)
@@ -63,6 +62,13 @@ logging.basicConfig(level=logging.INFO)
         "last_edit_utc and last_edit_date empty, and threshold_result set to 'duplicate'."
     ),
 )
+@click.option(
+    "--delay",
+    type=float,
+    default=1.5,
+    show_default=True,
+    help="Seconds to wait between Wikimedia API calls (courtesy rate-limiting).",
+)
 def main(
     input_type,
     input_file,
@@ -71,6 +77,7 @@ def main(
     active_from,
     inactive_from,
     allow_duplicates,
+    delay,
 ):
     """
     This command-line utility processes user data from given INPUT_FILEs by looking for
@@ -93,7 +100,7 @@ def main(
     api_client = WikimediaAPIClient(USER_AGENT, MAX_RETRIES, BACKOFF_FACTOR)
     analyzer = ContributionAnalyzer(active_from, inactive_from)
     output_writer = TSVWriter(output)
-    processor = UserProcessor(api_client, analyzer, SLEEP_BETWEEN_LINES, deduplicate=not allow_duplicates)
+    processor = UserProcessor(api_client, analyzer, delay, deduplicate=not allow_duplicates)
 
     processor.process_files(
         list(input_file), output_writer, list(additional_site), output.name

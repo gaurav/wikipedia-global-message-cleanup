@@ -80,6 +80,15 @@ class TestUserProcessor:
         assert rows[0]["username"] == "Alice"
         assert rows[1]["username"] == "Alice"
 
+    def test_non_target_line_does_not_sleep(self):
+        processor, api_client = _make_processor()
+        buf = io.StringIO()
+        writer = TSVWriter(buf)
+        input_file = io.StringIO("Just a comment\n")
+        with patch("wikipedia_global_message_cleanup.processor.time.sleep") as mock_sleep:
+            processor.process_files([input_file], writer)
+        mock_sleep.assert_not_called()
+
     def test_additional_site_dedup_with_original_site(self):
         processor, api_client = _make_processor()
         api_client.get_last_edit.return_value = "2023-05-01T12:00:00Z"

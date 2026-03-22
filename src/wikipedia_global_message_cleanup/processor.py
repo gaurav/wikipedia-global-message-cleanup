@@ -47,8 +47,6 @@ class UserProcessor:
                         line_count += 1
                         self._process_line(line, line_count, output_writer, additional_sites, pbar)
                         pbar.update(1)
-                        if line_count < total_lines:
-                            time.sleep(self.sleep_between_lines)
 
         self._log_summary(line_count, output_name)
 
@@ -89,6 +87,7 @@ class UserProcessor:
                     pbar.set_postfix(user=f"{username.username}@{site}")
                 self.processed_users.add(user_site)
                 last_edit = self.api_client.get_last_edit(username.username, site)
+                time.sleep(self.sleep_between_lines)
                 last_edit_date = last_edit.split("T")[0] if last_edit else ""
                 threshold_result = self.analyzer.analyze_contribution(last_edit)
 

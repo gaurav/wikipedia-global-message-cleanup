@@ -16,7 +16,7 @@ class TSVWriter:
             "threshold_result",
         ]
         self.writer = csv.DictWriter(
-            output_file, delimiter="\t", fieldnames=self.fieldnames
+            output_file, delimiter="\t", fieldnames=self.fieldnames, extrasaction="ignore"
         )
         self.writer.writeheader()
 

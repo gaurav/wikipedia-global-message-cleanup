@@ -69,7 +69,7 @@ class TestMediaWikiParserMalformed:
         assert len(results) == 0
         assert "double-check" in caplog.text
 
-    def test_target_keyword_case_sensitive(self, mediawiki_parser, caplog):
+    def test_target_keyword_uppercase_is_malformed(self, mediawiki_parser, caplog):
         with caplog.at_level(logging.WARNING):
             results = list(mediawiki_parser.parse_line("{{TARGET | user = Alice | site = en.wikipedia.org}}"))
         assert len(results) == 0
