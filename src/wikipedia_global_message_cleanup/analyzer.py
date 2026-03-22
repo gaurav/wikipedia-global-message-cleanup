@@ -23,7 +23,7 @@ class ContributionAnalyzer:
             return "none"
 
         year = int(year_str)
-        if year < 2000 or year > datetime.now().year:
+        if year < 2001 or year > datetime.now().year:
             raise ValueError(f"Invalid year: '{year}' found in last edit timestamp: '{last_edit}'")
         if year >= self.active_from:
             return "active"
