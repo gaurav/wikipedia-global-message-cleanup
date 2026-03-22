@@ -8,6 +8,9 @@ from .models import UsernameWithSite
 # template names as case-sensitive on the first character), so non-lowercase
 # variants would otherwise be silently ignored.
 _LOOSE_TARGET_RE = re.compile(r"{{\s*target\b", re.IGNORECASE)
+_TARGET_RE = re.compile(
+    r"{{\s*target\s*\|\s*user\s*=\s*(.+?)\s*(?:\|\s*site\s*=\s*(.+?)\s*)?\s*}}"
+)
 
 
 class MediaWikiParser:
@@ -15,10 +18,7 @@ class MediaWikiParser:
 
     def parse_line(self, line: str) -> Iterator[UsernameWithSite]:
         """Extract username and site from lines like {{target | user = Username | site = en.wikipedia.org}}."""
-        targets = re.findall(
-            r"{{\s*target\s*\|\s*user\s*=\s*(.+?)\s*(?:\|\s*site\s*=\s*(.+?)\s*)?\s*}}",
-            line,
-        )
+        targets = _TARGET_RE.findall(line)
         results = []
         for target in targets:
             username = target[0].strip()

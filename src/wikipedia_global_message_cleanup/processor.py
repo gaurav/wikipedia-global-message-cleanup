@@ -35,7 +35,7 @@ class UserProcessor:
         output_name: str = "output",
     ):
         """Process all input files and generate output with user contribution data."""
-        total_lines = sum(len(f.readlines()) for f in input_files)
+        total_lines = sum(sum(1 for _ in f) for f in input_files)
         for f in input_files:
             f.seek(0)
 
@@ -61,6 +61,7 @@ class UserProcessor:
         pbar: Optional[tqdm] = None,
     ):
         """Process a single line from input file, extracting and analyzing usernames."""
+        stripped_line = line.rstrip("\n")
         usernames = list(self.parser.parse_line(line))
         usernames_output = 0
 
@@ -76,7 +77,7 @@ class UserProcessor:
                     output_writer.write_row(
                         {
                             "line_no": line_count,
-                            "line": line.rstrip("\n"),
+                            "line": stripped_line,
                             "username": username.username,
                             "site": site,
                             "threshold_result": "duplicate",
@@ -100,7 +101,7 @@ class UserProcessor:
                 output_writer.write_row(
                     {
                         "line_no": line_count,
-                        "line": line.rstrip("\n"),
+                        "line": stripped_line,
                         "username": username.username,
                         "site": site,
                         "last_edit_utc": last_edit,
@@ -111,7 +112,7 @@ class UserProcessor:
                 usernames_output += 1
 
         if usernames_output == 0:
-            output_writer.write_row({"line_no": line_count, "line": line.rstrip("\n")})
+            output_writer.write_row({"line_no": line_count, "line": stripped_line})
 
     def _log_summary(self, line_count: int, output_name: str, elapsed: float = 0.0):
         """Log processing summary statistics."""
