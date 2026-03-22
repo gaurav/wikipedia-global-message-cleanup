@@ -25,6 +25,8 @@ You can also specify two thresholds:
 * The `--inactive-from` year is the minimum year a user must have edited to avoid being marked as delete (e.g. `2015`).
 * The `--active-from` year is the minimum year a user must have edited to be marked as active (e.g. `2020`).
 
+Both flags must be supplied together, and `--active-from` must be strictly greater than `--inactive-from`.
+
 By default, deduplication is on and each (username, site) pair is looked up only once. Pass `--allow-duplicates` to re-query every occurrence instead.
 
 You can adjust the courtesy delay between API calls with `--delay SECONDS` (default: `1.5`).

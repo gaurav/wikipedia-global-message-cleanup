@@ -12,6 +12,12 @@ class ContributionAnalyzer:
     ):
         self.active_from = active_from
         self.inactive_from = inactive_from
+        if active_from is not None and inactive_from is not None:
+            if active_from <= inactive_from:
+                raise ValueError(
+                    f"active_from ({active_from}) must be greater than "
+                    f"inactive_from ({inactive_from})"
+                )
 
     def analyze_contribution(self, last_edit: str) -> str:
         """Determine if user is active, inactive, or should be deleted based on last edit timestamp."""

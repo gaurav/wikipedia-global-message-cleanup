@@ -90,6 +90,7 @@ def main(
       active   — last edit year >= --active-from
       inactive — --inactive-from <= last edit year < --active-from
       delete   — last edit year < --inactive-from
+    (--active-from must be strictly greater than --inactive-from; an error is raised otherwise)
 
     When deduplication is active (the default), each (username, site) pair is
     looked up only once. Subsequent occurrences produce a row with line_no, line,

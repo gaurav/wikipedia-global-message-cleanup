@@ -1,3 +1,4 @@
+import pytest
 from wikipedia_global_message_cleanup.analyzer import ContributionAnalyzer
 
 
@@ -26,3 +27,11 @@ class TestContributionAnalyzer:
         analyzer = ContributionAnalyzer(active_from=2020, inactive_from=2015)
         result = analyzer.analyze_contribution("")
         assert result == "none"
+
+    def test_active_from_equal_to_inactive_from_raises(self):
+        with pytest.raises(ValueError, match="active_from"):
+            ContributionAnalyzer(active_from=2020, inactive_from=2020)
+
+    def test_active_from_less_than_inactive_from_raises(self):
+        with pytest.raises(ValueError, match="active_from"):
+            ContributionAnalyzer(active_from=2015, inactive_from=2020)
