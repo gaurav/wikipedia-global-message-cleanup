@@ -3,6 +3,10 @@ import re
 from typing import Iterator
 from .models import UsernameWithSite
 
+# Case-insensitive so {{TARGET ...}} and other variants are caught as malformed.
+# The extraction regex below is intentionally case-sensitive (MediaWiki treats
+# template names as case-sensitive on the first character), so non-lowercase
+# variants would otherwise be silently ignored.
 _LOOSE_TARGET_RE = re.compile(r"{{\s*target\b", re.IGNORECASE)
 
 
