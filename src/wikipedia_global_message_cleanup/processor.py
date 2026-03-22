@@ -40,6 +40,7 @@ class UserProcessor:
             f.seek(0)
 
         line_count = 0
+        start_time = time.monotonic()
         with logging_redirect_tqdm():
             with tqdm(total=total_lines, unit="line", desc="Processing") as pbar:
                 for file in input_files:
@@ -48,7 +49,8 @@ class UserProcessor:
                         self._process_line(line, line_count, output_writer, additional_sites, pbar)
                         pbar.update(1)
 
-        self._log_summary(line_count, output_name)
+        elapsed = time.monotonic() - start_time
+        self._log_summary(line_count, output_name, elapsed)
 
     def _process_line(
         self,
@@ -111,10 +113,14 @@ class UserProcessor:
         if usernames_output == 0:
             output_writer.write_row({"line_no": line_count, "line": line.rstrip("\n")})
 
-    def _log_summary(self, line_count: int, output_name: str):
+    def _log_summary(self, line_count: int, output_name: str, elapsed: float = 0.0):
         """Log processing summary statistics."""
         usernames = {u.username for u in self.processed_users}
         sites = {u.site for u in self.processed_users}
+        per_line = elapsed / line_count if line_count else 0.0
+        per_user_site = elapsed / len(self.processed_users) if self.processed_users else 0.0
         logging.info(
-            f"Done. {len(usernames)} unique usernames on {len(sites)} sites ({sites}) from {line_count} lines written to {output_name}."
+            f"Done. {len(usernames)} unique usernames on {len(sites)} sites ({sites}) "
+            f"from {line_count} lines written to {output_name}. "
+            f"Elapsed: {elapsed:.1f}s ({per_line:.2f}s/line, {per_user_site:.2f}s/username-site)."
         )
