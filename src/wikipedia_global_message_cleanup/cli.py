@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
     "--input-type",
     default="mediawiki",
     type=click.Choice(["mediawiki"]),
-    help="Type of the input data. The only current supported type is 'mediawiki'.",
+    help="Format of the input data. Currently only 'mediawiki' is supported; other formats may be added in the future.",
 )
 @click.option(
     "--output",
