@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents when working with code in this repository.
 
 ## Project Overview
 
@@ -12,13 +12,13 @@ All commands use `uv` to manage the Python 3.11 environment:
 
 ```bash
 # Run the main script
-uv run check-last-contribution.py <input_file> -o output.tsv
+uv run check-last-contribution <input_file> -o output.tsv
 
 # Run tests
-uv run python -m pytest test_modules.py
+uv run pytest
 
 # Run a single test
-uv run python -m pytest test_modules.py::TestClassName::test_method_name
+uv run pytest tests/test_contribution_analyzer.py::TestContributionAnalyzer::test_active_user
 
 # Lint
 uv run ruff check .
@@ -29,13 +29,14 @@ uv run ruff check . --fix
 
 ## Architecture
 
-The CLI entry point is `check-last-contribution.py`, which delegates to `lib/processor.py`. The `lib/` package provides:
+Source code lives under `src/` (standard src layout) in a single package `src/wikipedia_global_message_cleanup/`. The CLI entry point is `src/wikipedia_global_message_cleanup/cli.py`, registered as the `check-last-contribution` script via `[project.scripts]`. It delegates to `processor.py`. The package provides:
 
-- **`models.py`** — `UsernameWithSite` and `ContributionResult` dataclasses
+- **`cli.py`** — CLI entry point (`main` function)
+- **`models.py`** — `UsernameWithSite` dataclass
 - **`parsers.py`** — `MediaWikiParser` extracts `{{target | user = X | site = Y}}` patterns from input lines
-- **`api_client.py`** — `WikimediaAPIClient` queries `/w/api.php?action=query&list=usercontribs` with exponential backoff (5 retries, 1.5s sleep between lines)
+- **`api_client.py`** — `WikimediaAPIClient` queries `/w/api.php?action=query&list=usercontribs` with exponential backoff (5 retries, sleeps between API calls to respect rate limits)
 - **`analyzer.py`** — `ContributionAnalyzer` classifies users as `active` / `inactive` / `delete` / `none` based on year thresholds
 - **`output_writer.py`** — `TSVWriter` writes tab-separated output with headers
 - **`processor.py`** — `UserProcessor` orchestrates the pipeline; deduplicates API calls across files; expands each user to additional sites specified via `-s`
 
-The test suite is `test_modules.py` using Python's `unittest` framework (12 tests).
+Tests live in `tests/` and use pytest.
