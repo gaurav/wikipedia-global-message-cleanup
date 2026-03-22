@@ -6,15 +6,15 @@ class ContributionAnalyzer:
 
     def __init__(
         self,
-        threshold_active: Optional[int] = None,
-        threshold_inactive: Optional[int] = None,
+        active_from: Optional[int] = None,
+        inactive_from: Optional[int] = None,
     ):
-        self.threshold_active = threshold_active
-        self.threshold_inactive = threshold_inactive
+        self.active_from = active_from
+        self.inactive_from = inactive_from
 
     def analyze_contribution(self, last_edit: str) -> str:
         """Determine if user is active, inactive, or should be deleted based on last edit timestamp."""
-        if not self.threshold_active or not self.threshold_inactive or not last_edit:
+        if not self.active_from or not self.inactive_from or not last_edit:
             return "none"
 
         year_str = last_edit[:4]
@@ -22,9 +22,9 @@ class ContributionAnalyzer:
             return "none"
 
         year = int(year_str)
-        if year >= self.threshold_active:
+        if year >= self.active_from:
             return "active"
-        elif year >= self.threshold_inactive:
+        elif year >= self.inactive_from:
             return "inactive"
         else:
             return "delete"
