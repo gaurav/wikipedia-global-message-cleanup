@@ -21,11 +21,13 @@ You can also specify additional sites that should be checked for each user by
 using `-s commons.wikimedia.org -s wikidata.org`. No username/site combination will be checked
 more than once. Subsequent mentions produce a row with `username` and `site` populated but `last_edit_utc` and `last_edit_date` left empty, and `threshold_result` set to `duplicate`.
 
-You can also specify two thresholds:
-* The `--inactive-from` year is the minimum year a user must have edited to avoid being marked as delete (e.g. `2015`).
-* The `--active-from` year is the minimum year a user must have edited to be marked as active (e.g. `2020`).
+You can also specify thresholds to classify users:
+* `--active-from YEAR` — users whose last edit year is ≥ YEAR are `active`; those below are `delete`.
+* `--inactive-from YEAR` — users whose last edit year is ≥ YEAR are `inactive`; those below are `delete`.
+* Both together — users are `active` (≥ `--active-from`), `inactive` (≥ `--inactive-from` but below `--active-from`), or `delete` (below `--inactive-from`). `--active-from` must be strictly greater than `--inactive-from`.
+* Neither — `threshold_result` is `none` for all users.
 
-Both flags must be supplied together, and `--active-from` must be strictly greater than `--inactive-from`.
+Using `--inactive-from` without `--active-from` is allowed but produces a warning, since users who might be considered active will be marked `inactive` instead.
 
 By default, deduplication is on and each (username, site) pair is looked up only once. Pass `--allow-duplicates` to re-query every occurrence instead.
 

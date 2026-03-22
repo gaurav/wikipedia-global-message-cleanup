@@ -86,11 +86,18 @@ def main(
     which the user contributed to the given site. If additional sites are specified, each user
     will be checked against them as well.
 
-    If --active-from and --inactive-from are supplied, users are classified as:
-      active   — last edit year >= --active-from
-      inactive — --inactive-from <= last edit year < --active-from
-      delete   — last edit year < --inactive-from
-    (--active-from must be strictly greater than --inactive-from; an error is raised otherwise)
+    Threshold classification (threshold_result column):
+      --active-from only:
+        active  — last edit year >= --active-from
+        delete  — last edit year <  --active-from
+      --inactive-from only (a warning is printed):
+        inactive — last edit year >= --inactive-from
+        delete   — last edit year <  --inactive-from
+      Both flags (--active-from must be strictly greater than --inactive-from):
+        active   — last edit year >= --active-from
+        inactive — --inactive-from <= last edit year < --active-from
+        delete   — last edit year <  --inactive-from
+      Neither flag: threshold_result is "none" for all users.
 
     When deduplication is active (the default), each (username, site) pair is
     looked up only once. Subsequent occurrences produce a row with line_no, line,
