@@ -81,7 +81,7 @@ def main(
 ):
     """
     This command-line utility processes user data from given INPUT_FILEs by looking for
-    {{target}} templates in their content, which are used by MassMessage lists to find lists of
+    {{target}} templates in their content, which are used by MassMessage to find lists of
     users to send messages to. These are written out in TSV format, along with the last date on
     which the user contributed to the given site. If additional sites are specified, each user
     will be checked against them as well.
