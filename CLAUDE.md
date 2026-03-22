@@ -32,9 +32,9 @@ uv run ruff check . --fix
 Source code lives under `src/` (standard src layout) in a single package `src/wikipedia_global_message_cleanup/`. The CLI entry point is `src/wikipedia_global_message_cleanup/cli.py`, registered as the `check-last-contribution` script via `[project.scripts]`. It delegates to `processor.py`. The package provides:
 
 - **`cli.py`** — CLI entry point (`main` function)
-- **`models.py`** — `UsernameWithSite` and `ContributionResult` dataclasses
+- **`models.py`** — `UsernameWithSite` dataclass
 - **`parsers.py`** — `MediaWikiParser` extracts `{{target | user = X | site = Y}}` patterns from input lines
-- **`api_client.py`** — `WikimediaAPIClient` queries `/w/api.php?action=query&list=usercontribs` with exponential backoff (5 retries, sleeps between lines to respect rate limits)
+- **`api_client.py`** — `WikimediaAPIClient` queries `/w/api.php?action=query&list=usercontribs` with exponential backoff (5 retries, sleeps between API calls to respect rate limits)
 - **`analyzer.py`** — `ContributionAnalyzer` classifies users as `active` / `inactive` / `delete` / `none` based on year thresholds
 - **`output_writer.py`** — `TSVWriter` writes tab-separated output with headers
 - **`processor.py`** — `UserProcessor` orchestrates the pipeline; deduplicates API calls across files; expands each user to additional sites specified via `-s`
